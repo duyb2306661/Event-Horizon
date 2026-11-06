@@ -1,0 +1,49 @@
+name: Bug report
+description: Something in Event Horizon does not work as described.
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Security problems go to a [private advisory](https://github.com/muhzain05/Event-Horizon/security/advisories/new), not here.
+  - type: input
+    id: version
+    attributes:
+      label: Event Horizon version
+      description: Settings → about line, or the exe file name.
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version and build
+      description: Run `winver`.
+      placeholder: Windows 11 Home 24H2, build 26100
+    validations:
+      required: true
+  - type: input
+    id: tweak
+    attributes:
+      label: Tweak or boost-up ID (if any)
+      description: The ID is shown in docs/TWEAKS.md, for example `menu_delay`.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, what happened instead. Include the toast text.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant entries from `%APPDATA%\Event Horizon\history.json` or `stats-worker.log`. Remove anything personal.
+      render: json
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I ran the app as administrator (or the tweak is marked user-level).
+        - label: I searched existing issues.

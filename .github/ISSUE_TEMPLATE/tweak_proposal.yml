@@ -1,0 +1,43 @@
+name: Tweak proposal
+description: Suggest a new tweak, or a change to an existing one.
+labels: [tweak, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every tweak needs evidence. Proposals without a source or a reproducible measurement will be closed. See [CONTRIBUTING.md](https://github.com/muhzain05/Event-Horizon/blob/main/CONTRIBUTING.md#adding-or-changing-a-tweak).
+  - type: input
+    id: name
+    attributes:
+      label: Tweak name
+      placeholder: Disable Bluetooth LE background scanning
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options: [FPS & Latency, GPU (NVIDIA), Power & CPU, Registry, Windows Debloat, Privacy & Telemetry, Network & Ping, Storage & Memory, Visual & UI]
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What exactly does it change?
+      description: Registry keys, services, powercfg or bcdedit settings, with the Windows default value.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Microsoft or vendor documentation, or a benchmark with method and numbers.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Downsides
+      description: What stops working, what gets less secure, who should not apply it.
+    validations:
+      required: true

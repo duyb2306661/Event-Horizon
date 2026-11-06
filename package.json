@@ -1,0 +1,75 @@
+{
+  "name": "event-horizon",
+  "productName": "Event Horizon",
+  "version": "1.0.0",
+  "description": "Open-source, reversible FPS, latency and debloat optimizer for Windows 11 gaming PCs",
+  "main": "src/main/main.js",
+  "author": "muhzain05",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test \"test/*.test.js\"",
+    "docs": "node scripts/gen-tweaks-doc.js",
+    "dist": "electron-builder --win portable nsis",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/orbitron": "^5.3.0",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.muhzain05.eventhorizon",
+    "productName": "Event Horizon",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "!src/main/capture.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "build/icon.png",
+      "requestedExecutionLevel": "requireAdministrator",
+      "artifactName": "EventHorizon-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true
+    },
+    "portable": {
+      "artifactName": "EventHorizon-Portable-${version}.exe"
+    },
+    "publish": null
+  },
+  "allowScripts": {
+    "electron-winstaller": false,
+    "electron@45.2.3": true
+  },
+  "homepage": "https://github.com/muhzain05/Event-Horizon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muhzain05/Event-Horizon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/muhzain05/Event-Horizon/issues"
+  },
+  "keywords": [
+    "windows",
+    "optimizer",
+    "fps",
+    "gaming",
+    "latency",
+    "debloat",
+    "electron",
+    "registry",
+    "tweaks"
+  ]
+}

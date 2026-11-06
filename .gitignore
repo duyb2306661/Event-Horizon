@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-*/
+*.log
+brag-output/
+LAUNCH_PLAN.md
+.env
+.env.*
+*.pem
+*.key
+Thumbs.db

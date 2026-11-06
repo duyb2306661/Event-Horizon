@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Unit tests and PowerShell parse check
+        run: npm test
+      - name: Tweak catalog doc is up to date
+        run: node scripts/gen-tweaks-doc.js --check
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=low
+      - name: Audit build toolchain
+        run: npm audit --audit-level=high
+
+  build:
+    name: Package (smoke test)
+    runs-on: windows-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build portable exe
+        run: npx electron-builder --win portable --publish never
+      - name: Check output
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist -Filter 'EventHorizon-Portable-*.exe' | Select-Object -First 1
+          if (-not $exe) { throw 'portable exe was not produced' }
+          "{0} ({1:N1} MB)" -f $exe.Name, ($exe.Length / 1MB)

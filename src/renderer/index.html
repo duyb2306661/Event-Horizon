@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: file:; script-src 'self'; connect-src 'none'">
+  <title>Event Horizon</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="space"></canvas>
+
+  <header id="titlebar">
+    <div class="brand">
+      <span class="brand-mark"><span class="bm-core"></span><span class="bm-ring"></span></span>
+      <span class="brand-name">EVENT HORIZON</span>
+      <span class="brand-sub">OPTIMIZER</span>
+    </div>
+    <div id="admin-chip" class="chip chip-warn hidden">⚠ Not elevated — <button id="btn-elevate">relaunch as admin</button></div>
+    <div class="win-controls">
+      <button id="win-min" title="Minimize">&#x2500;</button>
+      <button id="win-max" title="Maximize">&#x25A1;</button>
+      <button id="win-close" title="Close" class="close">&#x2715;</button>
+    </div>
+  </header>
+
+  <div id="shell">
+    <nav id="sidebar">
+      <button class="nav-btn active" data-page="dashboard" title="Observatory">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      </button>
+      <button class="nav-btn" data-page="tweaks" title="Optimizations">
+        <svg viewBox="0 0 24 24"><path d="M14 3 4 14h7l-1 7 10-11h-7z"/></svg>
+      </button>
+      <button class="nav-btn" data-page="boosts" title="Boost-Ups">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </button>
+      <button class="nav-btn" data-page="programs" title="Programs">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h4M8 16h8"/></svg>
+      </button>
+      <button class="nav-btn" data-page="scan" title="Deep Scan">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg>
+      </button>
+      <div class="nav-spacer"></div>
+      <button class="nav-btn" data-page="settings" title="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <div class="avatar" title="Commander">◉</div>
+    </nav>
+
+    <main id="content">
+      <!-- ───────── DASHBOARD ───────── -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-head">
+          <div>
+            <h1>Observatory</h1>
+            <p class="sub" id="dash-greeting">Welcome back, Commander. Your system is in orbit.</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="dash-rescan">⟳ Rescan</button>
+            <button class="btn btn-gold" id="dash-apply-lite">✦ Apply Lite preset</button>
+          </div>
+        </div>
+
+        <div class="grid dash-grid">
+          <div class="col-left">
+            <div class="tiles">
+              <div class="tile glass" data-go="tweaks">
+                <div class="tile-ico gold">⚡</div>
+                <div class="tile-num" id="t-active">–</div>
+                <div class="tile-lbl">Optimizations active</div>
+                <div class="tile-link">View optimizations →</div>
+              </div>
+              <div class="tile glass" data-go="tweaks">
+                <div class="tile-ico violet">✦</div>
+                <div class="tile-num" id="t-pending">–</div>
+                <div class="tile-lbl">Recommended pending</div>
+                <div class="tile-link">Apply now →</div>
+              </div>
+              <div class="tile glass" data-go="boosts">
+                <div class="tile-ico cyan">☄</div>
+                <div class="tile-num" id="t-boosts">–</div>
+                <div class="tile-lbl">Boost-ups run</div>
+                <div class="tile-link">View boost-ups →</div>
+              </div>
+            </div>
+
+            <div class="glass panel" id="profile-card">
+              <div class="panel-head"><span class="ph-title">◉ System Profile</span><span class="chip chip-ok" id="profile-match">Scanning…</span></div>
+              <div class="profile-grid" id="profile-grid"></div>
+            </div>
+
+            <div class="glass panel">
+              <div class="panel-head"><span class="ph-title">✦ Your Optimizations</span><button class="btn btn-ghost btn-sm" data-go="tweaks">Manage presets</button></div>
+              <div id="dash-tweak-list" class="dash-list"></div>
+            </div>
+          </div>
+
+          <div class="col-right">
+            <div class="glass panel chart-panel">
+              <div class="panel-head"><span class="ph-title">▣ CPU USAGE</span><span class="muted" id="cpu-clock">—</span></div>
+              <div class="chart-row">
+                <canvas id="cpu-chart" width="520" height="150"></canvas>
+                <div class="ring-wrap"><canvas class="ring" id="ring-cpu" width="140" height="140"></canvas><div class="ring-val" id="ring-cpu-val">0%</div></div>
+              </div>
+            </div>
+            <div class="two">
+              <div class="glass panel">
+                <div class="panel-head"><span class="ph-title">◈ GPU USAGE</span><span class="muted" id="gpu-temp">—</span></div>
+                <div class="ring-center"><div class="ring-wrap"><canvas class="ring" id="ring-gpu" width="140" height="140"></canvas><div class="ring-val" id="ring-gpu-val">0%</div></div></div>
+                <div class="mini-stats" id="gpu-mini"></div>
+              </div>
+              <div class="glass panel">
+                <div class="panel-head"><span class="ph-title">▤ RAM USAGE</span><span class="muted" id="ram-txt">—</span></div>
+                <div class="ring-center"><div class="ring-wrap"><canvas class="ring" id="ring-ram" width="140" height="140"></canvas><div class="ring-val" id="ring-ram-val">0%</div></div></div>
+                <div class="mini-stats" id="ram-mini"></div>
+              </div>
+            </div>
+            <div class="glass panel">
+              <div class="panel-head"><span class="ph-title">☄ Top Processes</span><span class="muted" id="proc-count">—</span></div>
+              <div id="proc-list" class="proc-list"></div>
+            </div>
+            <div class="glass panel">
+              <div class="panel-head"><span class="ph-title">⟁ Shortcuts</span></div>
+              <div class="shortcuts">
+                <button class="sc" data-boost="standby_list"><span>▣</span>Free RAM</button>
+                <button class="sc" data-boost="temp_clean"><span>🧹</span>Clean Junk</button>
+                <button class="sc" data-boost="shader_cache"><span>◈</span>Shader Cache</button>
+                <button class="sc" data-boost="restore_point"><span>🛡</span>Restore Point</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── TWEAKS ───────── -->
+      <section class="page" id="page-tweaks">
+        <div class="page-head">
+          <div><h1>Optimizations</h1><p class="sub">Every tweak is reversible. Flip the switch, we handle the registry.</p></div>
+          <div class="head-actions"><button class="btn btn-ghost" id="tweaks-recheck">⟳ Re-check state</button></div>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="toolbar glass">
+          <div class="chips" id="cat-chips"></div>
+          <div class="toolbar-right">
+            <label class="switch-lbl"><input type="checkbox" id="f-reco"> Recommended only</label>
+            <select id="f-risk"><option value="">All risk levels</option><option value="safe">Safe</option><option value="medium">Medium</option><option value="high">High</option></select>
+            <input type="search" id="f-search" placeholder="Search tweaks…">
+          </div>
+        </div>
+        <div id="reboot-banner" class="banner hidden">⟳ Some applied tweaks need a reboot to take effect. <button class="btn btn-sm btn-gold" id="btn-reboot">Reboot now</button></div>
+        <div class="tweak-grid" id="tweak-grid"></div>
+      </section>
+
+      <!-- ───────── BOOSTS ───────── -->
+      <section class="page" id="page-boosts">
+        <div class="page-head">
+          <div><h1>Boost-Ups</h1><p class="sub">One-shot maintenance. Improve performance in seconds.</p></div>
+          <div class="head-actions"><button class="btn btn-gold" id="boost-all">☄ Run recommended</button></div>
+        </div>
+        <div class="toolbar glass"><div class="chips" id="boost-chips"></div></div>
+        <div class="boost-grid" id="boost-grid"></div>
+      </section>
+
+      <!-- ───────── PROGRAMS ───────── -->
+      <section class="page" id="page-programs">
+        <div class="page-head">
+          <div><h1>Programs</h1><p class="sub" id="prog-summary">Add / remove programs, Store apps and startup entries — the way Windows should have done it.</p></div>
+          <div class="head-actions"><button class="btn btn-ghost" id="prog-refresh">⟳ Refresh</button></div>
+        </div>
+        <div class="toolbar glass">
+          <div class="chips subtabs" id="prog-tabs">
+            <button class="chip-btn active" data-tab="programs">Installed <span class="cnt" id="cnt-programs"></span></button>
+            <button class="chip-btn" data-tab="apps">Store apps <span class="cnt" id="cnt-apps"></span></button>
+            <button class="chip-btn" data-tab="startup">Startup <span class="cnt" id="cnt-startup"></span></button>
+          </div>
+          <div class="toolbar-right">
+            <select id="prog-sort"><option value="name">Sort: Name</option><option value="size">Sort: Size</option><option value="date">Sort: Install date</option><option value="publisher">Sort: Publisher</option></select>
+            <input type="search" id="prog-search" placeholder="Search…">
+          </div>
+        </div>
+        <div class="glass panel table-panel"><div id="prog-table"></div></div>
+      </section>
+
+      <!-- ───────── SCAN ───────── -->
+      <section class="page" id="page-scan">
+        <div class="page-head">
+          <div><h1>Deep Scan</h1><p class="sub">Full hardware and OS inventory, and which parts of the catalog apply to it.</p></div>
+          <div class="head-actions"><button class="btn btn-gold" id="scan-run">◉ Run deep scan</button></div>
+        </div>
+        <div id="scan-body" class="scan-body"></div>
+      </section>
+
+      <!-- ───────── SETTINGS ───────── -->
+      <section class="page" id="page-settings">
+        <div class="page-head"><div><h1>Settings</h1><p class="sub">Safety net, logs and about.</p></div></div>
+        <div class="two">
+          <div class="glass panel">
+            <div class="panel-head"><span class="ph-title">🛡 Safety</span></div>
+            <div class="settings-rows">
+              <div class="srow"><div><b>Administrator</b><p>Tweaks need elevation to write HKLM and services.</p></div><span id="set-admin" class="chip">—</span></div>
+              <div class="srow"><div><b>System restore point</b><p>Create a checkpoint before applying high-risk tweaks.</p></div><button class="btn btn-sm btn-ghost" data-boost="restore_point">Create</button></div>
+              <div class="srow"><div><b>Revert everything</b><p>Turn off every tweak currently applied by this tool.</p></div><button class="btn btn-sm btn-danger" id="set-revert-all">Revert all</button></div>
+              <div class="srow"><div><b>Reboot</b><p>Apply kernel-level changes.</p></div><button class="btn btn-sm btn-ghost" id="set-reboot">Reboot now</button></div>
+              <div class="srow"><div><b>Data folder</b><p>History, cached scan and icon cache.</p></div><button class="btn btn-sm btn-ghost" id="set-open-data">Open</button></div>
+            </div>
+          </div>
+          <div class="glass panel">
+            <div class="panel-head"><span class="ph-title">◉ Activity log</span><button class="btn btn-sm btn-ghost" id="set-refresh-log">⟳</button></div>
+            <div id="history" class="history"></div>
+          </div>
+        </div>
+        <div class="glass panel about">
+          <div class="about-mark"><span class="bm-core"></span><span class="bm-ring"></span></div>
+          <div><b>Event Horizon</b> <span class="muted" id="about-ver"></span><p class="muted">Open source under the MIT license. Every tweak is a documented registry, service, bcdedit or powercfg change with a matching revert. No telemetry, no accounts, no premium.</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="modal" class="hidden"><div class="modal-box glass"><h3 id="modal-title"></h3><p id="modal-body"></p><div class="modal-actions"><button class="btn btn-ghost" id="modal-cancel">Cancel</button><button class="btn btn-gold" id="modal-ok">Continue</button></div></div></div>
+
+  <script src="space.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

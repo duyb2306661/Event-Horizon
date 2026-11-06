@@ -1,0 +1,75 @@
+name: Release
+
+# Pushing a tag like v1.0.0 builds the Windows binaries from that exact commit
+# and attaches them, with SHA-256 checksums, to a DRAFT release.
+# A maintainer reviews the draft and publishes it by hand.
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build (for example v1.0.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: node scripts/gen-tweaks-doc.js --check
+
+      - name: Check tag matches package.json version
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ("v$v" -ne $env:TAG) { throw "Tag $env:TAG does not match package.json version $v" }
+
+      - name: Build portable exe and installer
+        run: npx electron-builder --win portable nsis --publish never
+
+      - name: Checksums
+        shell: pwsh
+        run: |
+          Set-Location dist
+          Get-ChildItem -Filter 'EventHorizon-*.exe' | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
+          } | Set-Content -Encoding ascii SHA256SUMS.txt
+          Get-Content SHA256SUMS.txt
+
+      - name: Release notes from CHANGELOG
+        shell: pwsh
+        run: |
+          $ver = $env:TAG.TrimStart('v')
+          $text = Get-Content CHANGELOG.md -Raw
+          $m = [regex]::Match($text, "(?ms)^## \[$([regex]::Escape($ver))\][^\n]*\n(.*?)(?=^## \[|^\[)")
+          $notes = if ($m.Success) { $m.Groups[1].Value.Trim() } else { "See CHANGELOG.md" }
+          $notes += "`n`n---`n**Verify your download:** compare ``Get-FileHash <file> -Algorithm SHA256`` with ``SHA256SUMS.txt``. The executables are not code-signed yet; SmartScreen will warn on first run."
+          Set-Content -Encoding utf8 notes.md $notes
+
+      - name: Create or update draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $files = @(Get-ChildItem dist -Filter 'EventHorizon-*.exe' | ForEach-Object FullName) + 'dist/SHA256SUMS.txt'
+          gh release view $env:TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:TAG @files --clobber
+          } else {
+            gh release create $env:TAG @files --draft --title "Event Horizon $env:TAG" --notes-file notes.md
+          }
