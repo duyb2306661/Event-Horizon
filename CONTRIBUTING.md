@@ -58,7 +58,7 @@ If you change the number of tweaks, update the count in `test/catalog.test.js`, 
 ## Pull requests
 
 - One logical change per PR. Fill in the template.
-- `npm test` and `npm run docs -- --check` must pass.
+- `npm run ci` must pass. It runs the tests, the PowerShell parse check, the docs check and the dependency audit, the same gates as the CI workflow.
 - Keep the renderer free of network requests. The content security policy blocks them and a test checks it.
 - Match the existing style: 2-space indent, single quotes, no build step.
 

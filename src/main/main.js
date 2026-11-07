@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn, execFile } = require('child_process');
-const { runPS, runJSON, psQuote } = require('./powershell');
+const { runPS, runJSON, spawnPS, psQuote } = require('./powershell');
 const { TWEAKS, CATEGORIES, PRESETS, BLOAT_APPS } = require('./tweaks');
 const { BOOSTS } = require('./boosts');
 
@@ -133,13 +133,10 @@ ipcMain.handle('scan:cached', () => redact(loadJSON('lastscan.json', null)));
 let statsProc = null;
 function startStatsWorker() {
   if (statsProc) return;
-  // PowerShell cannot read files inside app.asar, so materialise the script on disk first.
-  const dir = path.join(app.getPath('userData'), 'scripts');
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, 'stats-worker.ps1');
-  fs.writeFileSync(file, '﻿' + readScript('stats-worker.ps1'), 'utf8');
+  // The script is fed over stdin (see spawnPS), so nothing is written to disk.
+  const script = readScript('stats-worker.ps1').replace('param([int]$ParentPid = 0)', `param([int]$ParentPid = ${process.pid})`);
   const logFile = path.join(app.getPath('userData'), 'stats-worker.log');
-  statsProc = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', file, '-ParentPid', String(process.pid)], { windowsHide: true });
+  statsProc = spawnPS(script);
   statsProc.stderr.on('data', (d) => { try { fs.appendFileSync(logFile, d.toString('utf8')); } catch {} });
   statsProc.on('error', (e) => { try { fs.appendFileSync(logFile, `spawn error: ${e}\n`); } catch {} });
   let buf = '';

@@ -7,8 +7,6 @@
 **Free, open-source FPS, latency and debloat optimizer for Windows 11.**<br>
 89 audited tweaks. Every one reversible. Zero telemetry of its own.
 
-[![CI](https://github.com/muhzain05/Event-Horizon/actions/workflows/ci.yml/badge.svg)](https://github.com/muhzain05/Event-Horizon/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/muhzain05/Event-Horizon/actions/workflows/codeql.yml/badge.svg)](https://github.com/muhzain05/Event-Horizon/actions/workflows/codeql.yml)
 [![Latest release](https://img.shields.io/github/v/release/muhzain05/Event-Horizon?color=f5a524&label=release)](https://github.com/muhzain05/Event-Horizon/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-8b5cf6)](LICENSE)
 ![Windows 11](https://img.shields.io/badge/Windows-11-22d3ee)
@@ -209,7 +207,7 @@ Unsigned Electron apps that run PowerShell are sometimes flagged heuristically. 
 git clone https://github.com/muhzain05/Event-Horizon.git
 cd Event-Horizon
 npm ci
-npm test
+npm run ci     # tests, PowerShell parse check, docs check, dependency audit
 npm start
 ```
 

@@ -1,8 +1,4 @@
 const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
 const { BLOAT_APPS } = require('./tweaks');
 
 // Shared helper functions prepended to every script we run.
@@ -50,10 +46,23 @@ function Test-PowerIndex($sub, $setting, $expected) {
 }
 `;
 
-function tmpScriptPath() {
-  const dir = path.join(os.tmpdir(), 'event-horizon');
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  return path.join(dir, `run-${crypto.randomBytes(6).toString('hex')}.ps1`);
+// Scripts are never written to disk. The app usually runs elevated, and a file in a
+// user-writable folder could be swapped by unelevated code between write and execution.
+// Instead a fixed bootstrap (passed via -EncodedCommand) reads the script from stdin as
+// UTF-8 and runs it in the current scope.
+const BOOTSTRAP = Buffer.from(
+  "$r = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), (New-Object System.Text.UTF8Encoding $false)); " +
+  "$__script = $r.ReadToEnd(); $r.Dispose(); . ([scriptblock]::Create($__script))",
+  'utf16le').toString('base64');
+
+/** Spawn PowerShell running `script` (fed over stdin). Returns the ChildProcess. */
+function spawnPS(script) {
+  const child = spawn('powershell.exe', [
+    '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', BOOTSTRAP,
+  ], { windowsHide: true });
+  child.stdin.on('error', () => {});
+  child.stdin.end(script, 'utf8');
+  return child;
 }
 
 /**
@@ -61,25 +70,13 @@ function tmpScriptPath() {
  */
 function runPS(body, { timeout = 180000, prelude = true } = {}) {
   return new Promise((resolve) => {
-    const file = tmpScriptPath();
-    fs.writeFileSync(file, '﻿' + (prelude ? PS_PRELUDE : '') + '\n' + body + '\n', 'utf8');
-    const child = spawn('powershell.exe', [
-      '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', file,
-    ], { windowsHide: true });
+    const child = spawnPS((prelude ? PS_PRELUDE : '') + '\n' + body + '\n');
     let stdout = '', stderr = '';
     const timer = setTimeout(() => { try { child.kill(); } catch {} }, timeout);
     child.stdout.on('data', d => stdout += d.toString('utf8'));
     child.stderr.on('data', d => stderr += d.toString('utf8'));
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      fs.unlink(file, () => {});
-      resolve({ code, stdout, stderr });
-    });
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      fs.unlink(file, () => {});
-      resolve({ code: -1, stdout, stderr: String(err) });
-    });
+    child.on('close', (code) => { clearTimeout(timer); resolve({ code, stdout, stderr }); });
+    child.on('error', (err) => { clearTimeout(timer); resolve({ code: -1, stdout, stderr: String(err) }); });
   });
 }
 
@@ -95,4 +92,4 @@ async function runJSON(body, opts) {
 
 function psQuote(s) { return `'${String(s).replace(/'/g, "''")}'`; }
 
-module.exports = { runPS, runJSON, psQuote, PS_PRELUDE };
+module.exports = { runPS, runJSON, spawnPS, psQuote, PS_PRELUDE };

@@ -29,3 +29,11 @@ test('development switches are disabled in packaged builds', () => {
   assert.match(main, /const DEV = !app\.isPackaged/);
   assert.match(main, /DEV && process\.env\.HORIZON_SHOT/);
 });
+
+test('PowerShell scripts are never written to disk before running elevated', () => {
+  const ps = fs.readFileSync(path.join(root, 'src/main/powershell.js'), 'utf8');
+  assert.doesNotMatch(ps, /writeFile|tmpdir|'-File'/);
+  assert.match(ps, /-EncodedCommand/);
+  assert.doesNotMatch(main, /writeFileSync\([^)]*stats-worker/);
+  assert.doesNotMatch(main, /'-File'/);
+});

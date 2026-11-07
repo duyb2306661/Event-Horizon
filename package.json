@@ -11,7 +11,8 @@
     "test": "node --test \"test/*.test.js\"",
     "docs": "node scripts/gen-tweaks-doc.js",
     "dist": "electron-builder --win portable nsis",
-    "dist:portable": "electron-builder --win portable"
+    "dist:portable": "electron-builder --win portable",
+    "ci": "npm test && node scripts/gen-tweaks-doc.js --check && npm audit --omit=dev --audit-level=low && npm audit --audit-level=high"
   },
   "devDependencies": {
     "@fontsource/inter": "^5.3.0",

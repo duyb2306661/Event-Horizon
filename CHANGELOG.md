@@ -23,6 +23,7 @@ First public release.
 ### Security
 - Renderer runs sandboxed with context isolation and a `connect-src 'none'` content security policy. Fonts are bundled, so the app makes no network requests.
 - External links are limited to `https:`.
+- PowerShell scripts are passed to PowerShell over stdin and never written to disk, so unelevated code cannot swap a script before it runs with administrator rights (found by CodeQL `js/insecure-temporary-file`).
 - Development-only switches (screenshot and capture modes) are disabled in packaged builds.
 
 ### Removed before release
